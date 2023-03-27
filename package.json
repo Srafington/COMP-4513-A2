@@ -1,0 +1,18 @@
+{
+  "name": "comp4513-w2023-assign2",
+  "version": "1.0.0",
+  "description": "MRU Web 3 Assignment 2",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Jonathan Axford",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "primereact": "^9.2.1",
+    "react": "^18.2.0"
+  }
+}
