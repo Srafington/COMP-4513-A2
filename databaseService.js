@@ -1,10 +1,22 @@
 const mongoose = require('mongoose');
-const env = require('./.env')
-
+const env = require('./env')
 
 
 class databaseService {
 
+  ratingsSchema = new mongoose.Schema({
+    popularity: Number,
+    average: Number,
+    count: Number
+  });
+  genresSchema = new mongoose.Schema({
+     id: Number, 
+     name: String 
+  });
+  movieDetailsSchema = new mongoose.Schema({
+    overview: String,
+      genres: [this.genresSchema]
+  });
   movieSchema = new mongoose.Schema({
     id: Number,
     tmdb_id: Number,
@@ -16,41 +28,51 @@ class databaseService {
     tagline: String,
     poster: String,
     backdrop: String,
-    ratings: { popularity: Number, average: Number, count: Number },
-    details: {
-      overview: String,
-      genres: [{ id: Number, name: String }]
-    }
+    ratings: this.ratingsSchema,
+    details: this.movieDetailsSchema
   });
+
+  opt = {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    dbName: 'Movies'
+  };
+  db
 
   constructor() {
     this.dbConnect()
   }
 
   dbConnect = async () => {
-    await mongoose.connect(`mongodb://${env.mongo.username}:${env.mongo.password}@web3cluster.tilggpf.mongodb.net/test`);
+    await mongoose.connect(`mongodb+srv://${env.mongo.username}:${env.mongo.password}@web3cluster.tilggpf.mongodb.net/Movies`, this.opt);
+    console.log('Checking Mongo connection')
+    this.db = mongoose.connection;
+    this.db.on('error', console.error.bind(console, 'connection error:'));
+    this.db.once('open', function callback() {
+      console.log("connected to mongo");
+    });
   }
-  getMovies = (limit, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = limit >= 0 ? Movies.find({}).all().limit(limit) : Movies.find().all();
+  getMovies = async (limit, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await (limit >= 0 ? Movies.find().limit(limit) : Movies.find());
+    // console.log(mongoose.connection.collections)
+    if (results.length === 0) {
+      results.push({ "error": "No results" });
+    }
+    callback(results);
+  }
+  getMoviesById = async (movieId, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ id: movieId });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
     }
     callback(results);
   }
-  getMoviesById = (movieId, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = Movies.find({ id: movieId });
-
-    if (results.length === 0) {
-      results.push({ "error": "No results" });
-    }
-    callback(results);
-  }
-  getMoviesTMDB = (movieId, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = Movies.find({ tmdb_id: movieId });
+  getMoviesTMDB = async (movieId, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ tmdb_id: movieId });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
@@ -59,35 +81,41 @@ class databaseService {
   }
 
   //TODO: Figure out date to year
-  getMoviesByYear = (minYear, maxYear, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = Movies.find({ year: movieId });
+  getMoviesByYear = async (minYear, maxYear, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ year: movieId });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
     }
     callback(results);
   }
-  getMoviesByRating = (minRating, maxRating, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = Movies.find({ rating: { $gt: minRating, $lt: maxRating } });
+  getMoviesByRating = async (minRating, maxRating, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ rating: { $gt: minRating, $lt: maxRating } });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
     }
     callback(results);
   }
-  getMoviesByTitle = (searchTerm, callback) => {
-    const Movies = mongoose.model('Movies', this.movieSchema);
-    const results = Movies.find({ title: { $regex: `/.+${searchTerm}.+/` } });
+  getMoviesByTitle = async (searchTerm, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ title: { $regex: `/.+${searchTerm}.+/` } });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
     }
     callback(results);
   }
-  getMoviesByGenre = (genre, callback) => {
+  getMoviesByGenre = async (genre, callback) => {
+    const Movies = mongoose.model('movies', this.movieSchema);
+    const results = await Movies.find({ title: { $regex: `/.+${searchTerm}.+/` } });
 
+    if (results.length === 0) {
+      results.push({ "error": "No results" });
+    }
+    callback(results);
   }
 }
 
