@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const env = require('./env')
-
+require('dotenv').config();
+dbConnector = require('./mongoConnector')
 
 class databaseService {
 
@@ -21,7 +21,7 @@ class databaseService {
     id: Number,
     tmdb_id: Number,
     imdb_id: String,
-    release_date: String,
+    release_date: Date,
     title: String,
     runtime: Number,
     revenue: Number,
@@ -32,30 +32,12 @@ class databaseService {
     details: this.movieDetailsSchema
   });
 
-  opt = {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    dbName: 'Movies'
-  };
-  db
-
-  constructor() {
-    this.dbConnect()
-  }
-
-  dbConnect = async () => {
-    await mongoose.connect(`mongodb+srv://${env.mongo.username}:${env.mongo.password}@web3cluster.tilggpf.mongodb.net/Movies`, this.opt);
-    console.log('Checking Mongo connection')
-    this.db = mongoose.connection;
-    this.db.on('error', console.error.bind(console, 'connection error:'));
-    this.db.once('open', function callback() {
-      console.log("connected to mongo");
-    });
+  constructor(){
+    dbConnector.connect('Movies');
   }
   getMovies = async (limit, callback) => {
     const Movies = mongoose.model('movies', this.movieSchema);
     const results = await (limit >= 0 ? Movies.find().limit(limit) : Movies.find());
-    // console.log(mongoose.connection.collections)
     if (results.length === 0) {
       results.push({ "error": "No results" });
     }
@@ -83,7 +65,11 @@ class databaseService {
   //TODO: Figure out date to year
   getMoviesByYear = async (minYear, maxYear, callback) => {
     const Movies = mongoose.model('movies', this.movieSchema);
-    const results = await Movies.find({ year: movieId });
+    const fromDate = `${minYear}-01-01`;
+    const thruDate = `${Number(maxYear)+1}-01-01`;
+    console.log(fromDate)
+    console.log(thruDate)
+    const results = await Movies.find({ release_date: { $gte: fromDate, $lt: thruDate } });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
@@ -92,7 +78,7 @@ class databaseService {
   }
   getMoviesByRating = async (minRating, maxRating, callback) => {
     const Movies = mongoose.model('movies', this.movieSchema);
-    const results = await Movies.find({ rating: { $gt: minRating, $lt: maxRating } });
+    const results = await Movies.find({ "ratings.average": { $gte: minRating, $lte: maxRating } });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
@@ -101,7 +87,8 @@ class databaseService {
   }
   getMoviesByTitle = async (searchTerm, callback) => {
     const Movies = mongoose.model('movies', this.movieSchema);
-    const results = await Movies.find({ title: { $regex: `/.+${searchTerm}.+/` } });
+    const searchRegEx = new RegExp(searchTerm, 'i');
+    const results = await Movies.find({ title: searchRegEx });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
@@ -110,7 +97,7 @@ class databaseService {
   }
   getMoviesByGenre = async (genre, callback) => {
     const Movies = mongoose.model('movies', this.movieSchema);
-    const results = await Movies.find({ title: { $regex: `/.+${searchTerm}.+/` } });
+    const results = await Movies.find({ "details.genres.name": genre });
 
     if (results.length === 0) {
       results.push({ "error": "No results" });
