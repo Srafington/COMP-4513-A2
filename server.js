@@ -1,5 +1,5 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const databaseService = require('./w3a2-server/databaseService');
@@ -26,6 +26,9 @@ app.use(passport.session());
 // use express flash, which will be used for passing messages
 app.use(flash());
 
+app.set('views', './w3a2-client'); 
+app.set('view engine', 'ejs');
+
 // set up the passport authentication
 require('./w3a2-server/auth.js');
 
@@ -34,9 +37,14 @@ require('./w3a2-server/auth.js');
 const dbs = new databaseService();
 
 // using bodyParser to parse JSON bodies into JS objects
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 // enabling CORS for all requests
+//We need to use this or the login form won't be readable in express
+app.use(express.urlencoded({
+    extended: true
+}));
+
 app.use(cors());
 
 app.get('/api/movies/', helper.ensureAuthenticated, (req, res) => {
@@ -102,6 +110,7 @@ app.get('/login', (req, res) => {
 });
 app.post('/login', async (req, resp, next) => {
     // use passport authentication to see if valid login
+    console.log('user is attempting to log in')
     passport.authenticate('localLogin',
         {
             successRedirect: '/',
@@ -109,19 +118,21 @@ app.post('/login', async (req, resp, next) => {
             failureFlash: true
         })(req, resp, next);
 });
-app.get('/logout', (req, resp) => {
-    req.logout();
-    req.flash('info', 'You were logged out');
-    resp.render('login', { message: req.flash('info') });
+app.get('/logout', (req, res) => {
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        req.flash('info', 'You were logged out');
+        res.render('login', { message: req.flash('info') });
+      });
 });
 
 
 
 // Static hosting goes last
 
-app.use(express.static(__dirname + '/static/'));
+app.use(express.static(__dirname + '/w3a2-client/'));
 app.get('/*', helper.ensureAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname + '/w3a2-client/build/index.html'));
+    res.render(path.join(__dirname + '/w3a2-client/home.ejs'));
 });
 // starting the server
 app.listen(process.env.PORT || 3001, () => {

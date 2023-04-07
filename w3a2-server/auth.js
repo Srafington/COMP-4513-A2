@@ -9,6 +9,7 @@ const localOpt = {
 // define strategy for validating login
 const strategy = new LocalStrategy(localOpt, async (email,
   password, done) => {
+    console.log("running local auth strat")
   try {
     // Find the user in the DB associated with this email 
     const userChosen = await UserModel.findOne({ email: email });
@@ -40,6 +41,12 @@ passport.use('localLogin', strategy);
 passport.serializeUser((user, done) => done(null, user.email));
 
 passport.deserializeUser((email, done) => {
-  UserModel.findOne({ email: email }, (err, user) => done(err,
-    user));
+  try {
+    const user = UserModel.findOne({ email: email });
+    if(user){
+      done("", true)
+    }
+  } catch (err) {
+    done(err, false)
+  }
 }); 

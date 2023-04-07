@@ -27,16 +27,15 @@ const userSchema = new mongoose.Schema({
   favorites: [Number]
 });
 
-module.exports = mongoose.model('User', userSchema, 'users');
 
 userSchema.methods.isValidPassword = async function (formPassword) {
   const user = this;
-  const hash = user.password;
+  const hash = user.password_bcrypt;
   // Hashes the password sent by the user for login and checks if the 
   // digest stored in the database matches the one sent. Returns true 
   // if it does else false.
   const compare = await bcrypt.compare(formPassword, hash);
   return compare;
-} 
+}
 
-
+module.exports = mongoose.model('User', userSchema, 'users');
