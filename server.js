@@ -116,7 +116,7 @@ app.get('/logout', (req, res) => {
 
 
 //-------------------------------------------------------------------------------
-// Static hosting goes last
+// Static hosting goes last due to catch-all
 
 app.use(express.static(__dirname + '/w3a2-client/'));
 app.get('/*', helper.ensureAuthenticated, (req, res) => {
