@@ -1,13 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  hello there
-  <a href="/logout">run away</a>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
+  <style>
+    .comfortaa {
+      font-family: 'Comfortaa', cursive;
+    }
+
+  </style>
+
+<body class="comfortaa">
+  <nav class="navbar is-info">
+    <div class="navbar-start">
+      <div class="navbar-brand" style="padding-left: 1em;">
+        <div>
+          <div>
+            COMP 4513
+          </div>
+          <div class="is-size-2">
+            Assignment 2
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navbar-end">
+      <a href="/logout" class="navbar-item">Log Out</a>
+    </div>
+
+  </nav>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Hello There</h1>
+      <div class="box">
+        Thank you for logging in
+        <%= user.details.firstname %>
+        <%= user.details.lastname %>
+      </div>
+    </div>
+  </section>
 </body>
+<footer class="footer" style="position: fixed; bottom: 0; left: 0; width: 100%;">
+  <div class="content has-text-centered">
+    <h4>
+      Jonathan Axford
+    </h4>
+    <a href="https://github.com/Srafington/COMP-4513-A2">Github</a>
+  </div>
+</footer>
+
 </html>

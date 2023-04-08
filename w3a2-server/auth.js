@@ -1,50 +1,45 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const UserModel = require('./user');
-// maps the passport fields to the names of fields in database
+
+//Form field to DB field map
 const localOpt = {
   usernameField: 'email',
   passwordField: 'password'
 };
-// define strategy for validating login
+
 const strategy = new LocalStrategy(localOpt, async (email,
   password, done) => {
-    console.log("running local auth strat")
   try {
-    // Find the user in the DB associated with this email 
     const userChosen = await UserModel.findOne({ email: email });
-
     if (!userChosen) {
-      //If the user isn't found in the database, set flash message
+      // Exit if no matching user
       return done(null, false, { message: 'Email not found' });
     }
-    // Validate password and make sure it matches the bcrypt digest 
-    //stored in the database. If they match, return a value of true.
+    // check password
     const validate = await userChosen.isValidPassword(password);
     if (!validate) {
       return done(null, false, { message: 'Wrong Password' });
     }
-    // Send the user information to the next middleware
+    // If we are here, then the user exists and the password hashes match, continue
     return done(null, userChosen, { message: 'Logged in Successfully' });
   }
   catch (error) {
     return done(error);
   }
 });
-// for localLogin, use our strategy to handle User login
+// attach our strategy to the localLogin resource in Passport
 passport.use('localLogin', strategy);
 
-// by default, passport uses sessions to maintain login status ... 
-// you have to determine what to save in session via serializeUser 
-// and deserializeUser. In our case, we will save the email in the 
-// session data
+// Serialize the user to attach them to the session
 passport.serializeUser((user, done) => done(null, user.email));
 
-passport.deserializeUser((email, done) => {
+// Deserializeation method, this can be used to attach the user data to the req object
+passport.deserializeUser(async (email, done) => {
   try {
-    const user = UserModel.findOne({ email: email });
-    if(user){
-      done("", true)
+    const user = await UserModel.findOne({ email: email });
+    if (user) {
+      done("", user)
     }
   } catch (err) {
     done(err, false)

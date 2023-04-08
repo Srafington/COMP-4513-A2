@@ -1,40 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
-   <body>
 
-      <section class="section">
-         <div class="container">
-            <h1 class="title">Login</h1>
-            <div class="box">
-               <form action="/login" method="post" >
-                  <div class="field">
-                     <label class="label">Email</label>
-                     <div class="control">
-                        <input class="input" type="email" placeholder="e.g. zpochet2@apple.com" name="email" id="email">
-                     </div>
-                  </div>
-                  
-                  <div class="field">
-                     <label class="label">Password</label>
-                     <div class="control">
-                        <input class="input" type="password" name="password" id="password" placeholder="mypassword">
-                     </div>
-                  </div>
-                  <div class="control">
-                     <button type="submit" class="button is-link">Login Locally</button>
-                  </div>
-                  <% if (message) { %> 
-                    <p id="msg2" class="help is-danger"> 
-                    <%= message %> 
-                    </p> 
-                   <% } %>
-               </form>
-            </div>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
+   <style>
+      .comfortaa {
+         font-family: 'Comfortaa', cursive;
+      }
+
+   </style>
+
+<body class="comfortaa">
+   <nav class="navbar is-info">
+      <div class="navbar-start" >
+         <div class="navbar-brand is-spaced is-size-2" style="padding-left: 1em;">
+            Assignment 2
          </div>
-      </section>
-   </body>
+      </div>
+
+   </nav>
+   <section class="section">
+      <div class="container">
+         <h1 class="title">Login</h1>
+         <div class="box">
+            <form action="/login" method="post">
+               <div class="field">
+                  <label class="label">Email</label>
+                  <div class="control">
+                     <input class="input" type="email" placeholder="al@ace.ca" name="email" id="email">
+                  </div>
+               </div>
+
+               <div class="field">
+                  <label class="label">Password</label>
+                  <div class="control">
+                     <input class="input" type="password" name="password" id="password" placeholder="mypassword">
+                  </div>
+               </div>
+               <div class="control">
+                  <button type="submit" class="button is-link">Login</button>
+               </div>
+               <% if (message) { %>
+                  <p id="msg" class="help is-danger">
+                     <%= message %>
+                  </p>
+                  <% } %>
+            </form>
+         </div>
+      </div>
+   </section>
+</body>
+<footer class="footer" style="position: fixed; bottom: 0; left: 0; width: 100%;">
+   <div class="content has-text-centered">
+     <h4>
+       Jonathan Axford
+     </h4>
+     <a href="https://github.com/Srafington/COMP-4513-A2">Github</a>
+   </div>
+ </footer>
+
 </html>

@@ -1,7 +1,5 @@
 const express = require('express');
-// const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
 const databaseService = require('./w3a2-server/databaseService');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -11,7 +9,7 @@ const helper = require('./w3a2-server/helper');
 
 const app = express();
 
-// Express session
+// Express setup
 app.use(cookieParser('oreos'));
 app.use(
     session({
@@ -20,33 +18,29 @@ app.use(
         saveUninitialized: true
     })
 );
-// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-// use express flash, which will be used for passing messages
 app.use(flash());
 
+// Set up EJS views location and set EJS as the view engine
 app.set('views', './w3a2-client'); 
 app.set('view engine', 'ejs');
 
-// set up the passport authentication
+// Link authentication resources
 require('./w3a2-server/auth.js');
 
-// defining the Express app
-
+// Database object, because that's how I did it. It works and I'm not changing it
 const dbs = new databaseService();
 
-// using bodyParser to parse JSON bodies into JS objects
-// app.use(bodyParser.json());
-
-// enabling CORS for all requests
-//We need to use this or the login form won't be readable in express
+// We need to use this or the login form won't be readable in express
 app.use(express.urlencoded({
     extended: true
 }));
 
+// enabling CORS for all requests
 app.use(cors());
 
+// API access methods
 app.get('/api/movies/', helper.ensureAuthenticated, (req, res) => {
     dbs.getMovies(-1, function (data) {
         res.send(data);
@@ -58,6 +52,7 @@ app.get('/api/movies/limit/:limit', helper.ensureAuthenticated, (req, res) => {
         res.send(data);
     },)
 });
+// No paintings here, but I can get you a movie
 app.get('/api/movies/:id', helper.ensureAuthenticated, (req, res) => {
     const movieId = req.params.id;
     dbs.getMoviesById(movieId, function (data) {
@@ -97,26 +92,19 @@ app.get('/api/movies/genre/:name', helper.ensureAuthenticated, (req, res) => {
     })
 });
 
-app.post('/api/createUser', helper.ensureAuthenticated, async (req, res) => {
-    let user = {
-        userName: req.body.userName,
-        name: req.body.name,
-    }
-});
-
-
+// User session management endpoints
 app.get('/login', (req, res) => {
     res.render('login.ejs', { message: req.flash('error') });
 });
-app.post('/login', async (req, resp, next) => {
-    // use passport authentication to see if valid login
-    console.log('user is attempting to log in')
+app.post('/login', async (req, res, next) => {
+
     passport.authenticate('localLogin',
         {
             successRedirect: '/',
+            successFlash: true,
             failureRedirect: '/login',
             failureFlash: true
-        })(req, resp, next);
+        })(req, res, next);
 });
 app.get('/logout', (req, res) => {
     req.logout(function(err) {
@@ -127,12 +115,12 @@ app.get('/logout', (req, res) => {
 });
 
 
-
+//-------------------------------------------------------------------------------
 // Static hosting goes last
 
 app.use(express.static(__dirname + '/w3a2-client/'));
 app.get('/*', helper.ensureAuthenticated, (req, res) => {
-    res.render(path.join(__dirname + '/w3a2-client/home.ejs'));
+    res.render('home.ejs', {user: req.user});
 });
 // starting the server
 app.listen(process.env.PORT || 3001, () => {
