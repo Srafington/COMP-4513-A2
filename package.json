@@ -4,7 +4,9 @@
   "description": "MRU Web 3 Assignment 2, with thanks to Randy Connolly for lab 16b",
   "author": "Jonathan Axford",
   "main": "server.js",
-  "engine": { "node": "18.x" },
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
